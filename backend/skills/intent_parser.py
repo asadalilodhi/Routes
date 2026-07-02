@@ -31,9 +31,9 @@ class IntentParsingSkill:
         User Input: "{user_input}"
         """
         
-    def parse(self, user_input: str, qwen_api_key: str = None, aiml_api_key: str = None) -> Dict[str, Any]:
+    def parse(self, user_input: str, qwen_api_key: str = None, gmi_cloud_api_key: str = None) -> Dict[str, Any]:
         """
-        Execute the parsing skill using AIML API for testing.
+        Execute the parsing skill using GMI Cloud API for testing.
         """
         prompt = self.generate_parsing_prompt(user_input)
         
@@ -45,26 +45,27 @@ class IntentParsingSkill:
         # )
         # return json.loads(response.output.text)
         
-        # --- AIML API Implementation ---
-        if aiml_api_key:
+        # --- GMI Cloud API Implementation ---
+        if gmi_cloud_api_key:
             import requests
             headers = {
-                "Authorization": f"Bearer {aiml_api_key}",
+                "Authorization": f"Bearer {gmi_cloud_api_key}",
                 "Content-Type": "application/json"
             }
             data = {
-                "model": "gpt-4o",
+                "model": "Qwen/Qwen3.7-Max",
                 "messages": [{"role": "user", "content": prompt}],
                 "response_format": {"type": "json_object"}
             }
-            response = requests.post("https://api.aimlapi.com/v1/chat/completions", headers=headers, json=data)
+            # Note: Update URL if GMI Cloud provides a different base endpoint
+            response = requests.post("https://api.gmi-serving.com/v1/chat/completions", headers=headers, json=data)
             
             if response.status_code == 200:
                 content = response.json()["choices"][0]["message"]["content"]
                 return json.loads(content)
             else:
                 print(f"[IntentParser Error] {response.text}")
-                return {"error": "AIML API Failed"}
+                return {"error": "GMI Cloud API Failed"}
         
         # Mock Response for structural completeness
         return {
